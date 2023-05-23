@@ -1,1 +1,3 @@
 # gauss-eliminacao
+
+hello Gauss
