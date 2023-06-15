@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib as mt
+import matplotlib.pyplot as plt
 import streamlit as st
 import pandas as pd
 
@@ -9,7 +9,8 @@ genre = st.sidebar.radio(
     "Qual sistema linear você deseja calcular?",
     ('Gauss', 'Gauss - Seidel'))
 
-rows = st.sidebar.number_input("Número de linhas da matriz", min_value=2, value=4)
+num_rows = st.sidebar.number_input("Número de linhas e colunas da matriz", min_value=2, value=4)
+rows = int(num_rows)
 cols = rows
 
 if genre == 'Gauss':
@@ -20,7 +21,7 @@ else:
 st.write(f"Número de linhas e colunas selecionadas: {rows}")
 
 data = [[st.sidebar.number_input(f"Valor [{i+1},{j+1}]", key=f"value_{i}_{j}", value=0) for j in range(cols)] for i in range(rows)]
-st.write("adicione os números que deseja calcular:")
+st.write("Adicione os números que deseja calcular:")
 df = pd.DataFrame(data, index=range(1, rows + 1), columns=range(1, cols + 1))
 edited_df = st.experimental_data_editor(df)
 
@@ -35,35 +36,53 @@ mt = pd.DataFrame(matriz, index=range(1, rows + 1), columns=range(1, cols + 1))
 st.write(mt)
 
 if st.sidebar.button("Calcular"):
+    
     def eliminacao_gauss(matriz):
-        n = len(matriz) #define linhas e colunas contudo que ela seja quadrada
+        n = len(matriz)
         
-        for i in range(n): # esse for vai percorrer as linhas da matriz 
-            pivo = matriz[i][i] # esse elemento vai obter o pivo (diagonal da matriz)
+        for i in range(n):
+            pivo = matriz[i][i]
             
-            if pivo == 0: #tratamento do erro se o pivo for == 0 
-                raise ValueError("Ops, verifique o valor do pivô indicado")
+            if pivo == 0:
+                raise ValueError("A diagonal não pode ser 0")
             
-            matriz[i] = matriz[i] / pivo #verifica a linha do array em sequancia dividindo pelo pivo
+            matriz[i] = matriz[i] / pivo
             
             st.write(f"Matriz intermediária após a normalização da linha {i + 1}:")
             st.write(matriz)
             
-            for j in range(i+1, n): #percorre a linha abaixo do pivo
-                multiplicador = matriz[j][i] #definição do multiplicador (abaixo do pivo)
-                matriz[j] = matriz[j] - multiplicador * matriz[i] # 
+            for j in range(i+1, n):
+                multiplicador = matriz[j][i]
+                matriz[j] = matriz[j] - multiplicador * matriz[i]
             
             st.write(f"Matriz intermediária após a atualização das linhas abaixo do pivô {i + 1}:")
             st.write(matriz)
         
-        return matriz
-    
+        return matriz     
+
     resultado = eliminacao_gauss(matriz)
 
-    # Exibindo a matriz resultante
-    st.write("Matriz resultante:")
-    st.write(resultado)
 
-#n = matriz 
-#i = numero
-#j = alterar numero
+def gaussSeidel(A, b, vetorSolucao, iteracoes):
+    iteracao = 0
+    while iteracao < iteracoes:
+        for i in range(len(A)):
+            x = b[i]
+            for j in range(len(A)):
+                if i != j:
+                    x -= A[i][j] * vetorSolucao[j]
+            x /= A[i][i]
+            vetorSolucao[i] = x
+        iteracao += 1
+
+    st.write(vetorSolucao)
+
+if genre == 'Gauss - Seidel':
+    b = np.zeros(len(matriz))
+    for i in range(len(matriz)):
+        b[i] = matriz[i][-1]
+
+    vetorSolucao = np.zeros(len(matriz))
+    iteracoes = st.sidebar.number_input("Número de iterações para Gauss-Seidel", min_value=1, value=10)
+
+    gaussSeidel(matriz, b, vetorSolucao, iteracoes)
