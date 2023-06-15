@@ -78,6 +78,10 @@ def gaussSeidel(A, b, vetorSolucao, iteracoes):
     st.write(vetorSolucao)
 
 if genre == 'Gauss - Seidel':
+    st.write("Matriz que será calculada no seidel:")
+    mt = pd.DataFrame(matriz, index=range(1, rows + 1), columns=range(1, cols + 1))
+    st.write(mt)
+
     b = np.zeros(len(matriz))
     for i in range(len(matriz)):
         b[i] = matriz[i][-1]
@@ -86,3 +90,4 @@ if genre == 'Gauss - Seidel':
     iteracoes = st.sidebar.number_input("Número de iterações para Gauss-Seidel", min_value=1, value=10)
 
     gaussSeidel(matriz, b, vetorSolucao, iteracoes)
+    
